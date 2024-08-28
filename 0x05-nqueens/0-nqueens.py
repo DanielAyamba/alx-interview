@@ -4,43 +4,25 @@
 import sys
 
 
-def is_safe(placed_queens, r, c):
-    """Check if the position (r, c) is safe for placing a queen."""
-    for row, col in placed_queens:
-        if col == c or abs(col - c) == abs(row - r):
+def is_safe(placed_queens, row, col):
+    """Check if a queen can be placed at (row, col)."""
+    for r, c in placed_queens:
+        if c == col or abs(c - col) == abs(r - row):
             return False
     return True
 
 
-def solve_n_queens(n):
-    """Solve the N-Queens problem and return all solutions."""
-    solutions = []
-    placed_queens = []
-    r, c = 0, 0
+def solve_n_queens(n, row, placed_queens, solutions):
+    """Recursive function to solve the N-Queens problem."""
+    if row == n:
+        solutions.append(placed_queens[:])
+        return
 
-    while r < n:
-        goback = False
-        while c < n:
-            if is_safe(placed_queens, r, c):
-                placed_queens.append([r, c])
-                if r == n - 1:
-                    solutions.append(placed_queens[:])
-                    goback = True
-                else:
-                    r += 1
-                    c = 0
-                    break
-            c += 1
-
-        if goback or c == n:
-            if not placed_queens:
-                break
-            r, c = placed_queens.pop()
-            c += 1
-            if r == 0 and c == n:
-                break
-
-    return solutions
+    for col in range(n):
+        if is_safe(placed_queens, row, col):
+            placed_queens.append([row, col])
+            solve_n_queens(n, row + 1, placed_queens, solutions)
+            placed_queens.pop()
 
 
 if __name__ == '__main__':
@@ -49,15 +31,17 @@ if __name__ == '__main__':
         sys.exit(1)
 
     try:
-        n = int(sys.argv[1])
+        N = int(sys.argv[1])
     except ValueError:
-        print('N must be a number')
+        print("N must be a number")
         sys.exit(1)
 
-    if n < 4:
-        print('N must be at least 4')
+    if N < 4:
+        print("N must be at least 4")
         sys.exit(1)
 
-    solutions = solve_n_queens(n)
+    solutions = []
+    solve_n_queens(N, 0, [], solutions)
+
     for solution in solutions:
         print(solution)
